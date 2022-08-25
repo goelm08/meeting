@@ -1,0 +1,108 @@
+.Background {
+  /* background-image: linear-gradient(178deg, #097e0f, transparent); */
+  height: 100vh;
+  width: 100vw;
+}
+
+.BackgroundImg {
+  z-index: -1;
+  position: absolute;
+  left:0px;
+  height: 100vh;
+  width: 100vw;
+  object-fit: contain;
+  opacity: 0.2;
+}
+
+.MainContainer {
+  display: flex;
+}
+
+.LeftHalf {
+  width: 60%;
+  /* border: 2px solid red; */
+  height: 100vh;
+}
+
+.Logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.divCard {
+  /* border: 2px solid red; */
+  width: 30%;
+  margin: 5%;
+  background-color: #ffffffbd;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  box-shadow: 0px 0px 16px 0px #888888;
+};
+
+.myButtons {
+  border : 2px soid yellow;
+  display: flex;
+}
+
+.myButton {
+  padding: 5px 10px;
+  border-radius: 10px;
+  background-color: #6dd86c;
+}
+
+.divStyle {
+  display: inline-block;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.VideoContainer {
+  width: 100%;
+  height: 90vh;
+}
+
+/* Mobile first design, Portrait displays under 48em/768px */
+.formStyle {
+  display: block;
+  width: 85%;
+  margin: 0 auto;
+}
+
+/* Chrome iPad present/Portrait 48em = 768px */
+@media (min-width: 48em) {
+  .formStyle {
+    display: block;
+    width: 50%;
+    margin: 0 auto;
+  }
+}
+
+/* Chrome iPad Pro Preset/Portrait 64em = 1024px */
+@media (min-width: 64em) {
+  .formStyle {
+    display: block;
+    width: 80%;
+    margin: 0 auto;
+  }
+}
+
+/* HD displays/Landscape 75em = 1200px */
+@media (min-width: 75em) {
+  .formStyle {
+    display: block;
+    width: 60%;
+    margin: 0 auto;
+  }
+}
+
+/* Full HD displays/Landscape 120em = 1920px */
+@media (min-width: 120em) {
+  .formStyle {
+    display: block;
+    width: 50%;
+    margin: 0 auto;
+  }
+}
