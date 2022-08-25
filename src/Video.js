@@ -473,7 +473,7 @@ class Video extends Component {
 	sendMessage = () => {
 		socket.emit('chat-message', this.state.message, this.state.username)
 		this.setState({ message: "", sender: this.state.username })
-		console.log("HI", this.state.message, this.state.username)
+		// console.log("HI", this.state.message, this.state.username)
 	}
 
 	copyUrl = () => {
