@@ -18,7 +18,8 @@ import { buttonClicked, isLoading } from "../actions/uiActions";
 import { Link } from "react-router-dom";
 import { register } from "../actions/authActions";
 import "./style.css";
-import Camera from 'react-html5-camera-photo';
+import camera from './camera.js'
+
 
 class Register extends Component {
   state = {
@@ -79,11 +80,6 @@ class Register extends Component {
   };
 
   render() {
-
-    <Camera
-    onTakePhoto = { (dataUri) => { handleTakePhoto(dataUri); } }
-  />
-
     let className = "divStyle";
 
     // If HTTP 400 error, render alert with red color, else if
@@ -111,64 +107,65 @@ class Register extends Component {
             <img className='Logo' src='/e-meeting-logos_black.png' ></img>
           </div>
 
-            <div className='divCard'>
+          <div className='divCard'>
             <CardBody>
-            <CardTitle>
-              <h2>
-                <strong>Register</strong>
-              </h2>
-            </CardTitle>
-            <CardSubtitle className="text-muted">
-              Already have an account?
-              <Link to="/login"> Log In. </Link>
-            </CardSubtitle>
-            <br />
-            {alert}
-            <Form onSubmit={this.onSubmit}>
-              <FormGroup className="text-center">
-                <Label for="name">Name</Label>
-                <Input
-                  type="text"
-                  name="name"
-                  id="name"
-                  placeholder="Enter your name"
-                  className="mb-3"
-                  size="lg"
-                  onChange={this.onChange}
-                />
+              <CardTitle>
+                <h2>
+                  <strong>Register</strong>
+                </h2>
+              </CardTitle>
+              <CardSubtitle className="text-muted">
+                Already have an account?
+                <Link to="/login"> Log In. </Link>
+              </CardSubtitle>
+              <br />
+              {alert}
+              <Form onSubmit={this.onSubmit}>
+                <FormGroup className="text-center">
+                  <Label for="name">Name</Label>
+                  <Input
+                    type="text"
+                    name="name"
+                    id="name"
+                    placeholder="Enter your name"
+                    className="mb-3"
+                    size="lg"
+                    onChange={this.onChange}
+                  />
 
-                <Label for="email">E-mail</Label>
-                <Input
-                  type="email"
-                  name="email"
-                  id="email"
-                  placeholder="you@youremail.com"
-                  className="mb-3"
-                  size="lg"
-                  onChange={this.onChange}
-                />
+                  <Label for="email">E-mail</Label>
+                  <Input
+                    type="email"
+                    name="email"
+                    id="email"
+                    placeholder="you@youremail.com"
+                    className="mb-3"
+                    size="lg"
+                    onChange={this.onChange}
+                  />
 
-                <Label for="password">Password</Label>
-                <Input
-                  type="password"
-                  name="password"
-                  id="password"
-                  placeholder="Enter your Password"
-                  className="mb-3"
-                  size="lg"
-                  onChange={this.onChange}
-                />
-                <Button color="dark" className="mt-5" size="lg" block>
-                { this.props.loading ?
-                       <span >Registering.. <Spinner size="sm" color="light" /></span> : <span>Register</span>}
-                </Button>
-              </FormGroup>
-            </Form>
-          </CardBody>
-            </div>
+                  <Label for="password">Password</Label>
+                  <Input
+                    type="password"
+                    name="password"
+                    id="password"
+                    placeholder="Enter your Password"
+                    className="mb-3"
+                    size="lg"
+                    onChange={this.onChange}
+                  />
+                  <Button color="dark" className="mt-5" size="lg" block>
+                    {this.props.loading ?
+                      <span >Capturing Snap <Spinner size="sm" color="light" /></span> : <span>Register and Snap</span>
+                    }
+                  </Button>
+                </FormGroup>
+              </Form>
+            </CardBody>
+          </div>
         </div>
       </div>
-      </>)
+    </>)
 
 
     return (

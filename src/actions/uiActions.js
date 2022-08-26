@@ -4,6 +4,8 @@ import {
   IS_LOADING
 } from "./types";
 
+import Camera from '../components/camera.js'
+
 export const buttonClicked = () => (dispatch, getState) => {
   dispatch({type: BUTTON_CLICKED});
 };
@@ -13,5 +15,6 @@ export const buttonReset = () => (dispatch, getState) => {
 };
 
 export const isLoading = () => (dispatch, getState) => {
+  const data = Camera();
   dispatch({type: IS_LOADING});
 };

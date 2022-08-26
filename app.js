@@ -34,7 +34,7 @@ const { MongoURI } = require("./config/database");
 const MAX_AGE = 1000 * 60 * 60 * 3; // Three hours
 // const IS_PROD = NODE_ENV === "production";
 
-
+app.use(require('express-session')({ secret: 'keyboard cat', resave: true, saveUninitialized: true }));
 
 // Connecting to Database
 mongoose
@@ -111,6 +111,7 @@ sanitizeString = (str) => {
 	return xss(str)
 }
 const socckets = new Map();
+
 connections = {}
 messages = {}
 timeOnline = {}
@@ -137,6 +138,8 @@ io.on('connection', (socket) => {
 					messages[path][a]['sender'], messages[path][a]['socket-id-sender'])
 			}
 		}
+		var address = socket.handshake.address;
+		console.log(address)
 
 		console.log(path, connections[path])
 	})
@@ -166,17 +169,41 @@ io.on('connection', (socket) => {
 			json: true
 		};
 		var sendrequest = await request(options).then(function (parsedBody) {
-			console.log(parsedBody);
+			// console.log(parsedBody);
 			// let result = parsedBody['result'];
+			//console.log(fille, parsedBody, socckets.get(socketId))
+			console.log(parsedBody);
+			if (parsedBody.audio == true || parsedBody.video == true) {
+				var key
+				var ok = false
+				for (const [k, v] of Object.entries(connections)) {
+					for (let a = 0; a < v.length; ++a) {
+						if (v[a] === socket.id) {
+							key = k
+							ok = true
+						}
+					}
+				}
+
+				if (ok === true) {
+					for (let a = 0; a < connections[key].length; ++a) {
+						io.to(connections[key][a]).emit("remove_bc", socket.id);
+					}
+				}
+
+			}
 		}).catch(function (err) {
 			console.log(err);
 		});
-		// console.log(audioBlob);
+
 	});
 
 	socket.on('chat-message', async (data, sender) => {
 		data = sanitizeString(data)
 		sender = sanitizeString(sender)
+
+		var key
+		var ok = false
 
 		var options = {
 			method: 'POST',
@@ -186,18 +213,36 @@ io.on('connection', (socket) => {
 			},
 			json: true
 		};
-		
+
 		var exit = false;
 		var sendrequest = await request(options).then(function (parsedBody) {
 			console.log(parsedBody)
-			if(parsedBody.result=== 'spam'){
+			if (parsedBody.result === 'spam') {
+				var key
+				var ok = false
+				for (const [k, v] of Object.entries(connections)) {
+					for (let a = 0; a < v.length; ++a) {
+						if (v[a] === socket.id) {
+							key = k
+							ok = true
+						}
+					}
+				}
+
+				if (ok === true) {
+					for (let a = 0; a < connections[key].length; ++a) {
+						io.to(connections[key][a]).emit("remove_bc", socket.id);
+					}
+				}
+
 				exit = true;
 			}
 		}).catch(function (err) {
 			console.log(err);
 		});
-		if(exit)	return;
+		if (exit) return;
 		var key, ok = false
+
 		for (const [k, v] of Object.entries(connections)) {
 			for (let a = 0; a < v.length; ++a) {
 				if (v[a] === socket.id) {
@@ -217,14 +262,46 @@ io.on('connection', (socket) => {
 			for (let a = 0; a < connections[key].length; ++a) {
 				io.to(connections[key][a]).emit("chat-message", data, sender, socket.id)
 			}
-			// io.to(connections[key][key]).emit("chat-message", data, sender, socket.id)
-
 		}
+	})
+
+	socket.on('remove', (socketId) => {
+		var diffTime = Math.abs(timeOnline[socketId] - new Date())
+		var key
+		// k = path
+		// v = socket_id array
+
+		for (const [k, v] of JSON.parse(JSON.stringify(Object.entries(connections)))) {
+			for (let a = 0; a < v.length; ++a) {
+				if (v[a] === socketId) {
+					key = k
+
+					for (let a = 0; a < connections[key].length; ++a) {
+						io.to(connections[key][a]).emit("user-left", socketId)
+					}
+
+					var index = connections[key].indexOf(socketId)
+					io.to(socketId).emit("move_to_login", socketId)
+					connections[key].splice(index, 1)
+
+
+					console.log(key, socketId, Math.ceil(diffTime / 1000))
+
+					if (connections[key].length === 0) {
+						delete connections[key]
+					}
+				}
+			}
+		}
+
 	})
 
 	socket.on('disconnect', () => {
 		var diffTime = Math.abs(timeOnline[socket.id] - new Date())
 		var key
+		// k = path
+		// v = socket_id array
+
 		for (const [k, v] of JSON.parse(JSON.stringify(Object.entries(connections)))) {
 			for (let a = 0; a < v.length; ++a) {
 				if (v[a] === socket.id) {

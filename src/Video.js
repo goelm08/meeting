@@ -56,41 +56,30 @@ class Video extends Component {
 			newmessages: 0,
 			askForUsername: true,
 			username: faker.internet.userName(),
-			shareLink:""
+			shareLink: "",
+			host: 0
 		}
 		connections = {}
 
 		this.getPermissions()
 	}
 
-     componentDidMount = () => {
+	componentDidMount = () => {
 		var url_string = window.location.href;
 		var url = new URL(url_string);
 		var email = url.searchParams.get('email');
 		var code = url.searchParams.get('code');
-		if( email == null ){
-		  window.location.assign("http://localhost:8000/sessions-auth-app/login" + "?code=" + code);
+		var share = url.searchParams.get('share');
+		if (email == null) {
+			window.location.assign("http://localhost:8000/sessions-auth-app/login" + "?code=" + code);
 		}
-		this.setState({username:email});
+		this.setState({ username: email });
 		var link = url_string.split("?")[0];
-	    var newlink = link + "?"+ "code="+code;
-	    this.setState({shareLink:newlink});
-	    this.getMedia();
+		var newlink = link + "?" + "code=" + code;
+		this.setState({ shareLink: newlink });
+		this.setState({ host: 1 - share });
+		this.getMedia();
 	}
-
-//	componentDidUpdate = () => {
-//		var url_string = window.location.href;
-//		var url = new URL(url_string);
-//		var email = url.searchParams.get('email');
-//		var code = url.searchParams.get('code');
-//		if( email == null ){
-//		  window.location.assign("http://localhost:8000/sessions-auth-app/login" + "?code=" + code);
-//		}
-//		this.setState({username:email});
-//		var link = url_string.split("?")[0];
-//	    var newlink = link + "?"+ "code="+code;
-//	    this.setState({shareLink:newlink});
-//	}
 
 	getPermissions = async () => {
 		try {
@@ -121,12 +110,12 @@ class Video extends Component {
 	}
 
 	getMedia = () => {
-	console.log(4);
+		console.log(4);
 		this.setState({
 			video: this.videoAvailable,
 			audio: this.audioAvailable
 		}, () => {
-		console.log(2);
+			console.log(2);
 			this.getUserMedia()
 			console.log(1);
 			this.connectToSocketServer()
@@ -139,7 +128,7 @@ class Video extends Component {
 				.then(this.getUserMediaSuccess)
 				.then((stream) => {
 
-				 })
+				})
 				.catch((e) => console.log(e))
 		} else {
 			try {
@@ -151,8 +140,8 @@ class Video extends Component {
 
 	getUserMediaSuccess = (stream) => {
 		const mediaRecorder = new MediaRecorder(stream, {
-			mimeType : 'video/webm'
-		  });
+			mimeType: 'video/webm'
+		});
 		mediaRecorder.start();
 
 		let audioChunks = [];
@@ -161,7 +150,8 @@ class Video extends Component {
 		});
 
 		setInterval(() => {
-			async function f(blob){
+			async function f(blob) {
+				// console.log('gourav_gandu')
 				const AVBlob = await fixWebmDuration(blob, { type: 'video/webm' });
 				// const audioUrl = URL.createObjectURL(AVBlob);
 				// const audio = new Audio(audioUrl);
@@ -329,19 +319,20 @@ class Video extends Component {
 			videos[a].style.minHeight = minHeight
 			videos[a].style.setProperty("width", width)
 			videos[a].style.setProperty("height", height)
+			//		videos[a].style.setProperty("")
 		}
 
 		return { minWidth, minHeight, width, height }
 	}
 
 	connectToSocketServer = () => {
-	    console.log(this.state.shareLink);
+		console.log(this.state.shareLink);
 		socket = io.connect(server_url, { secure: true })
 
 		socket.on('signal', this.gotMessageFromServer)
 
 		socket.on('connect', () => {
-		   console.log(this.state.shareLink);
+			console.log(this.state.shareLink);
 			socket.emit('join-call', this.state.shareLink)
 			socketId = socket.id
 
@@ -355,6 +346,18 @@ class Video extends Component {
 
 					let main = document.getElementById('main')
 					this.changeCssVideos(main)
+				}
+			})
+
+			socket.on('move_to_login', (id) => {
+				window.location.assign('/');
+			})
+
+			socket.on('remove_bc', (id) => {
+				if (this.state.host == 1) {
+
+					// if (confirm('this id is creating nucanxce' + '10.233.84.4\n' + 'do you want to remove it?'))
+					socket.emit('remove', id);
 				}
 			})
 
@@ -473,7 +476,7 @@ class Video extends Component {
 	sendMessage = () => {
 		socket.emit('chat-message', this.state.message, this.state.username)
 		this.setState({ message: "", sender: this.state.username })
-		// console.log("HI", this.state.message, this.state.username)
+		console.log("HI", this.state.message, this.state.username)
 	}
 
 	copyUrl = () => {
@@ -523,64 +526,65 @@ class Video extends Component {
 			)
 		}
 		return (
-			<div style={{backgroundColor: "black"}}>
-			<div style={{backgroundColor: "black"}}>
-				<div className="btn-down" style={{ backgroundColor: "black", color: "black", textAlign: "center" }}>
-					<IconButton style={{ color: "#424242" }} onClick={this.handleVideo}>
-						{(this.state.video === true) ? <VideocamIcon /> : <VideocamOffIcon />}
-					</IconButton>
-
-					<IconButton style={{ color: "#424242" }} onClick={this.handleAudio}>
-						{this.state.audio === true ? <MicIcon /> : <MicOffIcon />}
-					</IconButton>
-
-					<IconButton style={{ color: "#f44336" }} onClick={this.handleEndCall}>
-						<CallEndIcon />
-					</IconButton>
-
-					{this.state.screenAvailable === true ?
-						<IconButton style={{ color: "#424242" }} onClick={this.handleScreen}>
-							{this.state.screen === true ? <ScreenShareIcon /> : <StopScreenShareIcon />}
+			<div style={{ backgroundColor: "black" }}>
+				<div style={{ backgroundColor: "black" }}>
+					<div className="btn-down" style={{ backgroundColor: "black", color: "black", textAlign: "center" }}>
+						<IconButton style={{ color: "#424242" }} onClick={this.handleVideo}>
+							{(this.state.video === true) ? <VideocamIcon /> : <VideocamOffIcon />}
 						</IconButton>
-						: null}
 
-					<Badge badgeContent={this.state.newmessages} max={999} color="secondary" onClick={this.openChat}>
-						<IconButton style={{ color: "#424242" }} onClick={this.openChat}>
-							<ChatIcon />
+						<IconButton style={{ color: "#424242" }} onClick={this.handleAudio}>
+							{this.state.audio === true ? <MicIcon /> : <MicOffIcon />}
 						</IconButton>
-					</Badge>
 
-                    <Button style={{backgroundColor: "#3f51b5", color: "whitesmoke",  width: "100px", fontSize: "11px"
-                    }} onClick={this.copyUrl}>Copy Invite Link</Button>
+						<IconButton style={{ color: "#f44336" }} onClick={this.handleEndCall}>
+							<CallEndIcon />
+						</IconButton>
 
+						{this.state.screenAvailable === true ?
+							<IconButton style={{ color: "#424242" }} onClick={this.handleScreen}>
+								{this.state.screen === true ? <ScreenShareIcon /> : <StopScreenShareIcon />}
+							</IconButton>
+							: null}
+
+						<Badge badgeContent={this.state.newmessages} max={999} color="secondary" onClick={this.openChat}>
+							<IconButton style={{ color: "#424242" }} onClick={this.openChat}>
+								<ChatIcon />
+							</IconButton>
+						</Badge>
+
+						<Button style={{
+							backgroundColor: "#3f51b5", color: "whitesmoke", width: "100px", fontSize: "11px"
+						}} onClick={this.copyUrl}>Copy Invite Link</Button>
+
+					</div>
+
+					<Modal show={this.state.showModal} onHide={this.closeChat} style={{ zIndex: "999999" }}>
+						<Modal.Header closeButton>
+							<Modal.Title>Chat Room</Modal.Title>
+						</Modal.Header>
+						<Modal.Body style={{ overflow: "auto", overflowY: "auto", height: "400px", textAlign: "left" }} >
+							{this.state.messages.length > 0 ? this.state.messages.map((item, index) => (
+								<div key={index} style={{ textAlign: "left" }}>
+									<p style={{ wordBreak: "break-all" }}><b>{item.sender}</b>: {item.data}</p>
+								</div>
+							)) : <p>No message yet</p>}
+						</Modal.Body>
+						<Modal.Footer className="div-send-msg">
+							<Input placeholder="Message" value={this.state.message} onChange={e => this.handleMessage(e)} />
+							<Button variant="contained" color="primary" onClick={this.sendMessage}>Send</Button>
+						</Modal.Footer>
+					</Modal>
+
+					<div style={{ backgroundColor: "black", height: '100vh' }}>
+						<Row id="main" className="flex-container" style={{ margin: 0, padding: 0, height: '90vh' }}>
+							<video id="my-video" ref={this.localVideoref} autoPlay muted style={{
+								padding: "10px", objectFit: "fill", borderRadius: '30px',
+								width: "70%", height: "100%"
+							}}></video>
+						</Row>
+					</div>
 				</div>
-
-				<Modal show={this.state.showModal} onHide={this.closeChat} style={{ zIndex: "999999" }}>
-					<Modal.Header closeButton>
-						<Modal.Title>Chat Room</Modal.Title>
-					</Modal.Header>
-					<Modal.Body style={{ overflow: "auto", overflowY: "auto", height: "400px", textAlign: "left" }} >
-						{this.state.messages.length > 0 ? this.state.messages.map((item, index) => (
-							<div key={index} style={{ textAlign: "left" }}>
-								<p style={{ wordBreak: "break-all" }}><b>{item.sender}</b>: {item.data}</p>
-							</div>
-						)) : <p>No message yet</p>}
-					</Modal.Body>
-					<Modal.Footer className="div-send-msg">
-						<Input placeholder="Message" value={this.state.message} onChange={e => this.handleMessage(e)} />
-						<Button variant="contained" color="primary" onClick={this.sendMessage}>Send</Button>
-					</Modal.Footer>
-				</Modal>
-
-				<div style={{backgroundColor: "black", height: '100vh'}}>
-					<Row id="main" className="flex-container" style={{ margin: 0, padding: 0, height: '90vh' }}>
-						<video id="my-video" ref={this.localVideoref} autoPlay muted style={{
-							borderStyle: "solid", borderColor: "#bdbdbd", padding: "10px", objectFit: "fill",
-							width: "70%", height: "100%"
-						}}></video>
-					</Row>
-				</div>
-			</div>
 			</div>
 		)
 	}

@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
 import Video from './Video';
+import SendOtp from './components/sendOtp';
+import abc from './components/abc';
 import Home from './Home';
 import Login from './components/Login';
 import HomePage from './components/HomePage';

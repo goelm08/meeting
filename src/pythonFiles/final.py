@@ -41,11 +41,11 @@ def checkVideo(fileName, id):
                 continue
             cv2.imwrite(fileNameJpeg, image)  # save frame as JPEG file.
 
-            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            watch = watch_cascade.detectMultiScale(gray, 1.3, 3)
-            for (x, y, w, h) in watch:
-                Profanity = True
-                break
+            # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            # watch = watch_cascade.detectMultiScale(gray, 1.3, 3)
+            # for (x, y, w, h) in watch:
+            #     Profanity = True
+            #     break
 
             if (Profanity or check_neut(predict.classify(model, fileNameJpeg, 299), fileNameJpeg)):
                 print('True image')
