@@ -1,0 +1,8 @@
+node_modules
+package-lock.json
+.env
+.idea/
+src/audio/
+src/videos/
+src/frames/
+src/pythonFiles/nsfw.299x299.h5

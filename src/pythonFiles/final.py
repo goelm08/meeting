@@ -14,6 +14,7 @@ with open('offensive.txt') as file:
     profanity_words = file.read()
 
 profanity_words = profanity_words.split('\n')
+watch_cascade=cv2.CascadeClassifier(r'C:\Users\goelm\Desktop\E-meeting\src\pythonFiles\guns.xml')
 
 
 # Setup url route which will calculate
@@ -27,11 +28,11 @@ def check_neut(result, fileName):
 
 def checkVideo(fileName, id):
     # print(fileName)
+    Profanity = False
     try:
         vidcap = cv2.VideoCapture(fileName)
         success, image = vidcap.read()
         count = 0
-        Profanity = False
         fileNameJpeg = str(parent + '\\frames\\' + id + '.jpg')
         while success:
             success, image = vidcap.read()
@@ -39,7 +40,14 @@ def checkVideo(fileName, id):
             if (count != 0):
                 continue
             cv2.imwrite(fileNameJpeg, image)  # save frame as JPEG file.
-            if (check_neut(predict.classify(model, fileNameJpeg, 299), fileNameJpeg)):
+
+            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            watch = watch_cascade.detectMultiScale(gray, 1.3, 3)
+            for (x, y, w, h) in watch:
+                Profanity = True
+                break
+
+            if (Profanity or check_neut(predict.classify(model, fileNameJpeg, 299), fileNameJpeg)):
                 print('True image')
                 Profanity = True
                 break
