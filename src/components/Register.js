@@ -18,6 +18,7 @@ import { buttonClicked, isLoading } from "../actions/uiActions";
 import { Link } from "react-router-dom";
 import { register } from "../actions/authActions";
 import "./style.css";
+import Camera from 'react-html5-camera-photo';
 
 class Register extends Component {
   state = {
@@ -78,6 +79,11 @@ class Register extends Component {
   };
 
   render() {
+
+    <Camera
+    onTakePhoto = { (dataUri) => { handleTakePhoto(dataUri); } }
+  />
+
     let className = "divStyle";
 
     // If HTTP 400 error, render alert with red color, else if
